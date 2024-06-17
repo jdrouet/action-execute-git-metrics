@@ -69,10 +69,9 @@ jobs:
         uses: ./
         with:
           script: |
-            pull
             add name 12.3
             show
-          logLevel: trace
+          backend: git2
 
       - name: Print Output
         run: echo "${{ steps.test-action.outputs.result }}"
@@ -96,4 +95,5 @@ jobs:
             show
             unknown
             show
+          backend: git2
           continueOnError: true

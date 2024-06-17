@@ -32,10 +32,7 @@ async function executeCommand(
     },
   };
 
-  const args = intoArgs(command);
-  args.unshift('-vvvvv');
-
-  const code = await exec.exec('git-metrics', args, options);
+  const code = await exec.exec('git-metrics', intoArgs(command), options);
   return {
     command,
     code,
