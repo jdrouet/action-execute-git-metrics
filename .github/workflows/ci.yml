@@ -72,6 +72,7 @@ jobs:
             pull
             add name 12.3
             show
+          logLevel: trace
 
       - name: Print Output
         run: echo "${{ steps.test-action.outputs.result }}"

@@ -26482,7 +26482,24 @@ exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const helper_1 = __nccwpck_require__(2707);
-async function executeCommand(command, backend) {
+function getLogLevel() {
+    const level = core.getInput('logLevel', { required: false });
+    switch (level) {
+        case 'error':
+            return '-v';
+        case 'warn':
+            return '-vv';
+        case 'info':
+            return '-vvv';
+        case 'debug':
+            return '-vvvv';
+        case 'trage':
+            return '-vvvvv';
+        default:
+            return undefined;
+    }
+}
+async function executeCommand(command, backend, verbosity) {
     let stdout = '';
     let stderr = '';
     const options = {
@@ -26498,6 +26515,10 @@ async function executeCommand(command, backend) {
             },
         },
     };
+    const args = (0, helper_1.intoArgs)(command);
+    if (verbosity) {
+        args.unshift(verbosity);
+    }
     const code = await exec.exec('git-metrics', (0, helper_1.intoArgs)(command), options);
     return {
         command,
@@ -26515,12 +26536,13 @@ async function run() {
     try {
         const script = core.getInput('script', { required: true });
         const backend = core.getInput('backend', { required: false });
+        const verbosity = getLogLevel();
         const continueOnError = core.getBooleanInput('continueOnError', {
             required: false,
         });
         for (const command of (0, helper_1.intoCommands)(script)) {
             core.debug(`executing command ${command}`);
-            const result = await executeCommand(command, backend);
+            const result = await executeCommand(command, backend, verbosity);
             core.debug(`exit code ${result.code}`);
             output.push(result);
             if (result.code !== 0 && !continueOnError) {

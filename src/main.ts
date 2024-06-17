@@ -3,6 +3,25 @@ import * as exec from '@actions/exec';
 import type { ExecOptions } from '@actions/exec';
 import { intoCommands, intoArgs } from './helper';
 
+function getLogLevel(): string | undefined {
+  const level = core.getInput('logLevel', { required: false });
+
+  switch (level) {
+    case 'error':
+      return '-v';
+    case 'warn':
+      return '-vv';
+    case 'info':
+      return '-vvv';
+    case 'debug':
+      return '-vvvv';
+    case 'trage':
+      return '-vvvvv';
+    default:
+      return undefined;
+  }
+}
+
 export type Execution = {
   command: string;
   code: number;
@@ -13,6 +32,7 @@ export type Execution = {
 async function executeCommand(
   command: string,
   backend: string,
+  verbosity?: string,
 ): Promise<Execution> {
   let stdout = '';
   let stderr = '';
@@ -30,6 +50,11 @@ async function executeCommand(
       },
     },
   };
+
+  const args = intoArgs(command);
+  if (verbosity) {
+    args.unshift(verbosity);
+  }
 
   const code = await exec.exec('git-metrics', intoArgs(command), options);
 
@@ -50,13 +75,14 @@ export async function run(): Promise<void> {
   try {
     const script = core.getInput('script', { required: true });
     const backend = core.getInput('backend', { required: false });
+    const verbosity = getLogLevel();
     const continueOnError = core.getBooleanInput('continueOnError', {
       required: false,
     });
 
     for (const command of intoCommands(script)) {
       core.debug(`executing command ${command}`);
-      const result = await executeCommand(command, backend);
+      const result = await executeCommand(command, backend, verbosity);
       core.debug(`exit code ${result.code}`);
       output.push(result);
       if (result.code !== 0 && !continueOnError) {

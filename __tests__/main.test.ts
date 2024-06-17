@@ -95,6 +95,8 @@ describe('action', () => {
       switch (name) {
         case 'backend':
           return 'command';
+        case 'logLevel':
+          return '';
         case 'script':
           return `
           add name 12.3

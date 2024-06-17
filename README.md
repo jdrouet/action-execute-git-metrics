@@ -6,7 +6,9 @@
 [![CodeQL](https://github.com/jdrouet/action-execute-git-metrics/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jdrouet/action-execute-git-metrics/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-This action should be used to use [git-metrics](https://github.com/jdrouet/git-metrics) after installing it with [action-install-git-metrics](https://github.com/jdrouet/action-install-git-metrics).
+This action should be used to use
+[git-metrics](https://github.com/jdrouet/git-metrics) after installing it with
+[action-install-git-metrics](https://github.com/jdrouet/action-install-git-metrics).
 
 ## Usage
 
