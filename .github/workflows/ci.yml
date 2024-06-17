@@ -82,4 +82,4 @@ jobs:
             show
             unknown
             show
-          continueOnError: 'true'
+          continueOnError: true

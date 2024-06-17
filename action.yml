@@ -13,11 +13,11 @@ inputs:
     description: 'The type of backend to use'
     required: false
     default: 'command'
-  continue-on-error:
+  continueOnError:
     description:
       'When enabled, if a command fails, the next ones should still be executed'
     required: false
-    default: 'false'
+    default: false
   script:
     description: 'A list of command to execute'
     required: true
