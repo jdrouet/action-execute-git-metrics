@@ -41,6 +41,7 @@ async function executeCommand(
     env: {
       GIT_BACKEND: backend,
     },
+    ignoreReturnCode: true,
     listeners: {
       stdout: (data: Buffer) => {
         stdout += data.toString();
@@ -57,7 +58,6 @@ async function executeCommand(
   }
 
   const code = await exec.exec('git-metrics', intoArgs(command), options);
-
   return {
     command,
     code,

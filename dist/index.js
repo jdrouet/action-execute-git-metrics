@@ -26506,6 +26506,7 @@ async function executeCommand(command, backend, verbosity) {
         env: {
             GIT_BACKEND: backend,
         },
+        ignoreReturnCode: true,
         listeners: {
             stdout: (data) => {
                 stdout += data.toString();
