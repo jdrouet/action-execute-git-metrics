@@ -71,7 +71,6 @@ jobs:
           script: |
             add name 12.3
             show
-          backend: git2
 
       - name: Print Output
         run: echo "${{ steps.test-action.outputs.result }}"
