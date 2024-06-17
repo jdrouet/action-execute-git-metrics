@@ -26520,7 +26520,7 @@ async function executeCommand(command, backend, verbosity) {
     if (verbosity) {
         args.unshift(verbosity);
     }
-    const code = await exec.exec('git-metrics', (0, helper_1.intoArgs)(command), options);
+    const code = await exec.exec('git-metrics', args, options);
     return {
         command,
         code,

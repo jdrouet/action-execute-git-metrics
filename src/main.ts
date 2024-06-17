@@ -57,7 +57,7 @@ async function executeCommand(
     args.unshift(verbosity);
   }
 
-  const code = await exec.exec('git-metrics', intoArgs(command), options);
+  const code = await exec.exec('git-metrics', args, options);
   return {
     command,
     code,
