@@ -18,9 +18,6 @@ inputs:
       'When enabled, if a command fails, the next ones should still be executed'
     required: false
     default: false
-  logLevel:
-    description: 'The level of verbosity to use'
-    required: false
   script:
     description: 'A list of command to execute'
     required: true
