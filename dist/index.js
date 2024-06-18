@@ -26488,6 +26488,7 @@ async function executeCommand(command, backend) {
     const options = {
         env: {
             GIT_BACKEND: backend,
+            VERBOSITY: '5',
         },
         ignoreReturnCode: true,
         listeners: {

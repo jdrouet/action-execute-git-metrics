@@ -20,6 +20,7 @@ async function executeCommand(
   const options: ExecOptions = {
     env: {
       GIT_BACKEND: backend,
+      VERBOSITY: '5',
     },
     ignoreReturnCode: true,
     listeners: {
