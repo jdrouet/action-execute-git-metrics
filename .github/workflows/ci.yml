@@ -59,10 +59,7 @@ jobs:
           version: ${{ matrix.version }}
 
       - name: set git config
-        shell: bash
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
+        uses: jdrouet/action-git-identity@main
 
       - name: executing script
         id: test-action
