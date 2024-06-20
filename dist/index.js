@@ -26482,30 +26482,45 @@ exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const helper_1 = __nccwpck_require__(2707);
-async function executeCommand(command, backend) {
-    let stdout = '';
-    let stderr = '';
-    const options = {
-        env: {
-            GIT_BACKEND: backend,
-            VERBOSITY: '5',
-        },
-        ignoreReturnCode: true,
-        listeners: {
-            stdout: (data) => {
-                stdout += data.toString();
+class Executor {
+    backend = 'command';
+    continueOnError = false;
+    output = [];
+    constructor(backend, continueOnError) {
+        this.backend = backend;
+        this.continueOnError = continueOnError;
+    }
+    executeCommand = async (command) => {
+        core.debug(`executing command ${command}`);
+        let stdout = '';
+        let stderr = '';
+        const options = {
+            env: {
+                GIT_BACKEND: this.backend,
+                VERBOSITY: '5',
             },
-            stderr: (data) => {
-                stderr += data.toString();
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => {
+                    stdout += data.toString();
+                },
+                stderr: (data) => {
+                    stderr += data.toString();
+                },
             },
-        },
-    };
-    const code = await exec.exec('git-metrics', (0, helper_1.intoArgs)(command), options);
-    return {
-        command,
-        code,
-        stdout,
-        stderr,
+        };
+        const code = await exec.exec('git-metrics', (0, helper_1.intoArgs)(command), options);
+        core.debug(`exit code ${code}`);
+        this.output.push({
+            command,
+            code,
+            stdout,
+            stderr,
+        });
+        if (code !== 0 && !this.continueOnError) {
+            core.setFailed(`command ${command} failed with exit code ${code}`);
+            throw new Error('command failed');
+        }
     };
 }
 /**
@@ -26513,23 +26528,24 @@ async function executeCommand(command, backend) {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
-    const output = [];
     try {
         const script = core.getInput('script', { required: true });
         const backend = core.getInput('backend', { required: false });
+        const sync = core.getBooleanInput('sync', { required: false });
         const continueOnError = core.getBooleanInput('continueOnError', {
             required: false,
         });
-        for (const command of (0, helper_1.intoCommands)(script)) {
-            core.debug(`executing command ${command}`);
-            const result = await executeCommand(command, backend);
-            core.debug(`exit code ${result.code}`);
-            output.push(result);
-            if (result.code !== 0 && !continueOnError) {
-                core.setFailed(`command ${command} failed with exit code ${result.code}`);
-                break;
-            }
+        const executor = new Executor(backend, continueOnError);
+        if (sync) {
+            await executor.executeCommand('pull');
         }
+        for (const command of (0, helper_1.intoCommands)(script)) {
+            await executor.executeCommand(command);
+        }
+        if (sync) {
+            await executor.executeCommand('push');
+        }
+        core.setOutput('result', JSON.stringify(executor.output));
     }
     catch (error) {
         // Fail the workflow run if an error occurs
@@ -26537,7 +26553,6 @@ async function run() {
             core.setFailed(error.message);
         }
     }
-    core.setOutput('result', JSON.stringify(output));
 }
 exports.run = run;
 

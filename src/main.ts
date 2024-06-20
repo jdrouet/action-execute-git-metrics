@@ -10,35 +10,51 @@ export type Execution = {
   stderr: string;
 };
 
-async function executeCommand(
-  command: string,
-  backend: string,
-): Promise<Execution> {
-  let stdout = '';
-  let stderr = '';
+class Executor {
+  backend: string = 'command';
+  continueOnError: boolean = false;
+  output: Execution[] = [];
 
-  const options: ExecOptions = {
-    env: {
-      GIT_BACKEND: backend,
-      VERBOSITY: '5',
-    },
-    ignoreReturnCode: true,
-    listeners: {
-      stdout: (data: Buffer) => {
-        stdout += data.toString();
-      },
-      stderr: (data: Buffer) => {
-        stderr += data.toString();
-      },
-    },
-  };
+  constructor(backend: string, continueOnError: boolean) {
+    this.backend = backend;
+    this.continueOnError = continueOnError;
+  }
 
-  const code = await exec.exec('git-metrics', intoArgs(command), options);
-  return {
-    command,
-    code,
-    stdout,
-    stderr,
+  executeCommand = async (command: string) => {
+    core.debug(`executing command ${command}`);
+    let stdout = '';
+    let stderr = '';
+
+    const options: ExecOptions = {
+      env: {
+        GIT_BACKEND: this.backend,
+        VERBOSITY: '5',
+      },
+      ignoreReturnCode: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          stdout += data.toString();
+        },
+        stderr: (data: Buffer) => {
+          stderr += data.toString();
+        },
+      },
+    };
+
+    const code = await exec.exec('git-metrics', intoArgs(command), options);
+    core.debug(`exit code ${code}`);
+
+    this.output.push({
+      command,
+      code,
+      stdout,
+      stderr,
+    });
+
+    if (code !== 0 && !this.continueOnError) {
+      core.setFailed(`command ${command} failed with exit code ${code}`);
+      throw new Error('command failed');
+    }
   };
 }
 
@@ -47,31 +63,31 @@ async function executeCommand(
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 export async function run(): Promise<void> {
-  const output: Execution[] = [];
   try {
     const script = core.getInput('script', { required: true });
     const backend = core.getInput('backend', { required: false });
+    const sync = core.getBooleanInput('sync', { required: false });
     const continueOnError = core.getBooleanInput('continueOnError', {
       required: false,
     });
 
-    for (const command of intoCommands(script)) {
-      core.debug(`executing command ${command}`);
-      const result = await executeCommand(command, backend);
-      core.debug(`exit code ${result.code}`);
-      output.push(result);
-      if (result.code !== 0 && !continueOnError) {
-        core.setFailed(
-          `command ${command} failed with exit code ${result.code}`,
-        );
-        break;
-      }
+    const executor = new Executor(backend, continueOnError);
+
+    if (sync) {
+      await executor.executeCommand('pull');
     }
+    for (const command of intoCommands(script)) {
+      await executor.executeCommand(command);
+    }
+    if (sync) {
+      await executor.executeCommand('push');
+    }
+
+    core.setOutput('result', JSON.stringify(executor.output));
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) {
       core.setFailed(error.message);
     }
   }
-  core.setOutput('result', JSON.stringify(output));
 }

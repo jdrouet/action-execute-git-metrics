@@ -43,13 +43,7 @@ jobs:
         uses: jdrouet/action-install-git-metrics@main
         with:
           version: ${{ matrix.version }}
-
-      # - name: set git user
-      #   run: |
-      #     git config user.name "github-actions[bot]"
-      #     git config user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
       - uses: jdrouet/action-git-identity@main
-
       - name: executing script
         id: test-action
         uses: ./
@@ -67,10 +61,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdrouet/action-install-git-metrics@main
-      # - name: set git user
-      #   run: |
-      #     git config user.name "github-actions[bot]"
-      #     git config user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
       - uses: jdrouet/action-git-identity@main
       - uses: ./
         with:
