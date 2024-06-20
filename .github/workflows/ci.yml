@@ -44,16 +44,11 @@ jobs:
         with:
           version: ${{ matrix.version }}
 
-      # - name: set git config
-      #   uses: jdrouet/action-git-identity@main
+      - name: set git config
+        uses: jdrouet/action-git-identity@main
 
       - name: set git user globally
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
-          cat ~/.gitconfig
-          git config user.name
-          git config user.email
+        run: cat ~/.gitconfig
 
       - name: executing script
         id: test-action
