@@ -51,6 +51,9 @@ jobs:
         run: |
           git config --global user.name "${{ inputs.username }}"
           git config --global user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
+          cat ~/.gitconfig
+          git config user.name
+          git config user.email
 
       - name: executing script
         id: test-action
