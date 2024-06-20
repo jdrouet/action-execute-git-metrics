@@ -17,28 +17,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        id: setup-node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
           cache: npm
-
-      - name: Install Dependencies
-        id: npm-ci
-        run: npm ci
-
-      - name: Check Format
-        id: npm-format-check
-        run: npm run format:check
-
-      - name: Test
-        id: npm-ci-test
-        run: npm run ci-test
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run ci-test
 
   test-action:
     name: GitHub Actions Test
@@ -58,8 +44,13 @@ jobs:
         with:
           version: ${{ matrix.version }}
 
-      - name: set git config
-        uses: jdrouet/action-git-identity@main
+      # - name: set git config
+      #   uses: jdrouet/action-git-identity@main
+
+      - name: set git user globally
+        run: |
+          git config --global user.name "${{ inputs.username }}"
+          git config --global user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: executing script
         id: test-action
@@ -78,13 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdrouet/action-install-git-metrics@main
-
-      - name: set git config
-        shell: bash
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
-
+      - uses: jdrouet/action-git-identity@main
       - uses: ./
         with:
           script: |
