@@ -69,4 +69,4 @@ jobs:
             unknown
             show
           backend: git2
-          continueOnError: true
+          continueOnError: 'true'
