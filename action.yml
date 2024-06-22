@@ -4,8 +4,8 @@ author: 'Jeremie Drouet <jeremie.drouet@gmail.com>'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: 'feather'
+  color: 'green'
 
 # Define your inputs here.
 inputs:
@@ -21,6 +21,10 @@ inputs:
   script:
     description: 'A list of command to execute'
     required: true
+  sync:
+    description: 'Wether the action should pull before and push after'
+    required: false
+    default: 'false'
 
 # Define your outputs here.
 outputs:
