@@ -21,6 +21,10 @@ inputs:
   script:
     description: 'A list of command to execute'
     required: true
+  sync:
+    description: 'Wether the action should pull before and push after'
+    required: false
+    default: 'false'
 
 # Define your outputs here.
 outputs:
