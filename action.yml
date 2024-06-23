@@ -28,8 +28,8 @@ inputs:
 
 # Define your outputs here.
 outputs:
-  stdout:
-    description: 'The output of the script'
+  result:
+    description: 'The output of all the command executed, kept in order.'
 
 runs:
   using: node20
