@@ -102,8 +102,6 @@ describe('action', () => {
               `;
         case 'continueOnError':
           return 'false';
-        case 'sync':
-          return 'true';
         default:
           return '';
       }
@@ -146,6 +144,120 @@ describe('action', () => {
     expect(setOutputMock).toHaveBeenCalledWith(
       'result',
       '[{"command":"pull","code":0,"stdout":"","stderr":""},{"command":"add name 12.3","code":0,"stdout":"","stderr":""},{"command":"show","code":0,"stdout":"some output","stderr":"some error"},{"command":"push","code":0,"stdout":"","stderr":""}]',
+    );
+  });
+
+  it('executing with pull', async () => {
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'backend':
+          return 'command';
+        case 'script':
+          return `
+                  add name 12.3
+                  show
+                  `;
+        case 'continueOnError':
+          return 'false';
+        default:
+          return '';
+      }
+    });
+    getBooleanInputMock.mockImplementation(name => ['pull'].includes(name));
+    execMock.mockImplementation((command, args, opts) => {
+      if (
+        !command ||
+        !args ||
+        !opts ||
+        !opts.listeners?.stdout ||
+        !opts.listeners?.stderr
+      )
+        throw new Error('missing parameter');
+      if (['add', 'pull', 'push'].includes(args[0])) {
+        return Promise.resolve(0);
+      }
+      if (args[0] === 'show') {
+        opts.listeners.stdout(Buffer.from('some output', 'utf8'));
+        opts.listeners.stderr(Buffer.from('some error', 'utf8'));
+        return Promise.resolve(0);
+      }
+      throw new Error('unexpected command ' + JSON.stringify(args));
+    });
+
+    await main.run();
+    expect(runMock).toHaveReturned();
+
+    expect(debugMock).toHaveBeenCalled();
+    expect(getInputMock).toHaveBeenCalledWith('script', { required: true });
+    expect(getInputMock).toHaveBeenCalledWith('backend', { required: false });
+    expect(getBooleanInputMock).toHaveBeenCalledWith('continueOnError', {
+      required: false,
+    });
+    expect(getBooleanInputMock).toHaveBeenCalledWith('sync', {
+      required: false,
+    });
+    expect(setFailedMock).not.toHaveBeenCalled();
+    expect(execMock).toHaveBeenCalledTimes(3);
+    expect(setOutputMock).toHaveBeenCalledWith(
+      'result',
+      '[{"command":"pull","code":0,"stdout":"","stderr":""},{"command":"add name 12.3","code":0,"stdout":"","stderr":""},{"command":"show","code":0,"stdout":"some output","stderr":"some error"}]',
+    );
+  });
+
+  it('executing with push', async () => {
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'backend':
+          return 'command';
+        case 'script':
+          return `
+                  add name 12.3
+                  show
+                  `;
+        case 'continueOnError':
+          return 'false';
+        default:
+          return '';
+      }
+    });
+    getBooleanInputMock.mockImplementation(name => ['push'].includes(name));
+    execMock.mockImplementation((command, args, opts) => {
+      if (
+        !command ||
+        !args ||
+        !opts ||
+        !opts.listeners?.stdout ||
+        !opts.listeners?.stderr
+      )
+        throw new Error('missing parameter');
+      if (['add', 'pull', 'push'].includes(args[0])) {
+        return Promise.resolve(0);
+      }
+      if (args[0] === 'show') {
+        opts.listeners.stdout(Buffer.from('some output', 'utf8'));
+        opts.listeners.stderr(Buffer.from('some error', 'utf8'));
+        return Promise.resolve(0);
+      }
+      throw new Error('unexpected command ' + JSON.stringify(args));
+    });
+
+    await main.run();
+    expect(runMock).toHaveReturned();
+
+    expect(debugMock).toHaveBeenCalled();
+    expect(getInputMock).toHaveBeenCalledWith('script', { required: true });
+    expect(getInputMock).toHaveBeenCalledWith('backend', { required: false });
+    expect(getBooleanInputMock).toHaveBeenCalledWith('continueOnError', {
+      required: false,
+    });
+    expect(getBooleanInputMock).toHaveBeenCalledWith('sync', {
+      required: false,
+    });
+    expect(setFailedMock).not.toHaveBeenCalled();
+    expect(execMock).toHaveBeenCalledTimes(3);
+    expect(setOutputMock).toHaveBeenCalledWith(
+      'result',
+      '[{"command":"add name 12.3","code":0,"stdout":"","stderr":""},{"command":"show","code":0,"stdout":"some output","stderr":"some error"},{"command":"push","code":0,"stdout":"","stderr":""}]',
     );
   });
 
@@ -217,6 +329,8 @@ describe('action', () => {
     });
     getBooleanInputMock.mockImplementation(name => {
       switch (name) {
+        case 'pull':
+        case 'push':
         case 'sync':
           return false;
         case 'continueOnError':

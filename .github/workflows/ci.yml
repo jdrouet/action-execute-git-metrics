@@ -53,7 +53,7 @@ jobs:
             show
 
       - name: Print Output
-        run: echo "${{ steps.test-action.outputs.stdout }}"
+        run: echo "${{ steps.test-action.outputs.result }}"
 
   test-continue-on-error:
     name: The script should keep going

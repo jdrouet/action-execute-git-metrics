@@ -24,6 +24,9 @@ steps:
   - name: Execute git-metrics
     uses: jdrouet/action-execute-git-metrics@main # or with a specific version
     with:
+      pull: 'false' # Shortcut to pull before executing the script
+      push: 'false' # Shortcut to push after executing the script
+      sync: 'false' # Shortcut to pull before and push after executing the script
       script: |
         pull
         add my-metric --tag "foo: bar" 12.34

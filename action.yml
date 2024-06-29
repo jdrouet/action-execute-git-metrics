@@ -21,6 +21,14 @@ inputs:
   script:
     description: 'A list of command to execute'
     required: true
+  pull:
+    description: 'Shortcut to pull before executing the script'
+    required: false
+    default: 'false'
+  push:
+    description: 'Shortcut to push after executing the script'
+    required: false
+    default: 'false'
   sync:
     description: 'Wether the action should pull before and push after'
     required: false

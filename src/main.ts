@@ -67,19 +67,21 @@ export async function run(): Promise<void> {
     const script = core.getInput('script', { required: true });
     const backend = core.getInput('backend', { required: false });
     const sync = core.getBooleanInput('sync', { required: false });
+    const pull = core.getBooleanInput('pull', { required: false });
+    const push = core.getBooleanInput('push', { required: false });
     const continueOnError = core.getBooleanInput('continueOnError', {
       required: false,
     });
 
     const executor = new Executor(backend, continueOnError);
 
-    if (sync) {
+    if (sync || pull) {
       await executor.executeCommand('pull');
     }
     for (const command of intoCommands(script)) {
       await executor.executeCommand(command);
     }
-    if (sync) {
+    if (sync || push) {
       await executor.executeCommand('push');
     }
 
